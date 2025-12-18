@@ -1,77 +1,79 @@
 ﻿#include <iostream>
 #include "Inventory.h"
+#include "ItemBase.h"
+#include "Weapon.h"
+#include "Potion.h"
 #include <string>
+
 using namespace std;
 
-class ItemBase
-{
-protected:
-	string name_;
-	int price_;
-public:
-	ItemBase(string name, int price) : name_(name), price_(price) {}
-	virtual void PrintInfo() const
-	{
-		cout << "[이름: " << name_ << ", 가격: " << price_ << "G]" << endl;
-	}
 
-	virtual ~ItemBase() = default;
-};
-
-class Weapon : public ItemBase
-{
-public:
-	Weapon(string name, int price) : ItemBase(name, price) {}
-	virtual void PrintInfo() const
-	{
-		cout << "[이름: " << name_ << ", 가격: " << price_ << "G]" << endl;
-	}
-
-	virtual ~Weapon() = default;
-};
-
-class Potion : public ItemBase
-{
-public:
-	Potion(string name, int price) : ItemBase(name, price) {}
-	virtual void PrintInfo() const
-	{
-		cout << "[이름: " << name_ << ", 가격: " << price_ << "G]" << endl;
-	}
-
-	virtual ~Potion() = default;
-};
 
 
 int main()
 {
-	Weapon W = { "Sword", 10 };
-	Potion HP = { "HpPotion", 3 };
-	Potion MP = { "MpPotion", 2 };
+    // 아이템 생성
+    Weapon sword = { "Sword", 500 };
+    Weapon axe = { "Axe", 300 };
+    Potion hp = { "HpPotion", 100 };
+    Potion mp = { "MpPotion", 200 };
 
-	Inventory<ItemBase*> I(15);
-	cout << "1번 인벤토리 테스트" << '\n';
-	cout << "*삭제" << '\n';
-	I.RemoveLastItem();
-	cout << "*추가 및 공간 체크" << '\n';
-	I.AddItem(&W);
-	I.AddItem(&HP);
-	cout << "Capacity: " << I.GetCapacity() << " Size: " << I.GetSize() << '\n';
-	I.AddItem(&MP);
-	cout << "Capacity: " << I.GetCapacity() << " Size: " << I.GetSize() << '\n';
-	cout << "*아이템 정보 출력" << '\n';
-	I.PrintAllItems();
-	cout << "*아이템 삭제 후 정보 출력" << '\n';
-	I.RemoveLastItem();
-	I.PrintAllItems();
-	cout << "*인벤토리가 꽉 찼을때" << '\n';
-	for (int i = 0; i < 14; i++)
-	{
-		// 꽉 찼을때 체크
-		I.AddItem(&MP);
-	}
+    // 인벤토리 생성
+    Inventory<ItemBase*> inven(5);
 
-	I.PrintAllItems();
+    // 아이템 추가
+    cout << "=== 아이템 추가 ===" << endl;
+    inven.AddItem(&sword);
+    inven.AddItem(&axe);
+    inven.AddItem(&hp);
+    inven.AddItem(&mp);
+    inven.PrintAllItems();
+    cout << "Size: " << inven.GetSize() << ", Capacity: " << inven.GetCapacity() << endl;
+
+    // 정렬 테스트
+    cout << "\n=== 가격 오름차순 정렬 ===" << endl;
+    inven.SortItems();
+    inven.PrintAllItems();
+
+    // 삭제 테스트
+    cout << "\n=== 마지막 아이템 삭제 ===" << endl;
+    inven.RemoveLastItem();
+    inven.PrintAllItems();
+
+    // 복사 생성자 테스트
+    cout << "\n=== 복사 생성자 테스트 ===" << endl;
+    {
+        Inventory<ItemBase*> inven2(inven);
+        cout << "inven2 Size: " << inven2.GetSize() << endl;
+        inven2.PrintAllItems();
+    }
+    cout << "블록 종료 후 원본 확인:" << endl;
+    inven.PrintAllItems();
+
+    // Resize 테스트
+    cout << "\n=== Resize 테스트 (용량 2로 축소) ===" << endl;
+    inven.Resize(2);
+    cout << "Size: " << inven.GetSize() << ", Capacity: " << inven.GetCapacity() << endl;
+    inven.PrintAllItems();
+
+    // 용량 초과 자동 확장 테스트
+    cout << "\n=== 자동 확장 테스트 ===" << endl;
+    inven.AddItem(&sword);
+    inven.AddItem(&axe);
+    inven.AddItem(&hp);
+    cout << "Size: " << inven.GetSize() << ", Capacity: " << inven.GetCapacity() << endl;
+
+    // Assign 테스트
+    cout << "\n=== Assign 테스트 ===" << endl;
+    Inventory<ItemBase*> inven3(3);
+    inven3.AddItem(&mp);
+    cout << "대입 전 inven3:" << endl;
+    inven3.PrintAllItems();
+    inven3.Assign(inven);
+    cout << "대입 후 inven3:" << endl;
+    inven3.PrintAllItems();
+
+    cout << "\n=== 프로그램 종료 ===" << endl;
 
 	return 0;
 }
